@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+# validation caches / logits from the notebook (large, not needed to run the app)
+cache_*.npy
+logits_*.npy
+results.csv
