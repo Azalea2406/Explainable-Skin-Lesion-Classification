@@ -1,0 +1,45 @@
+{
+  "classes": [
+    "akiec",
+    "bcc",
+    "bkl",
+    "df",
+    "mel",
+    "nv",
+    "vasc"
+  ],
+  "malignant_group": [
+    "mel",
+    "bcc",
+    "akiec"
+  ],
+  "benign_group": [
+    "nv",
+    "bkl",
+    "df",
+    "vasc"
+  ],
+  "default_profile": "t075_g015",
+  "profiles": {
+    "t075_g015": {
+      "threshold": 0.75,
+      "group_flag": 0.15,
+      "mel_flag": null,
+      "coverage": 0.8885,
+      "acc_on_answered": 0.9745,
+      "malignant_silent_as_benign": 6,
+      "mel_silent_miss": 4,
+      "n_referred": 123
+    },
+    "t080_g015": {
+      "threshold": 0.8,
+      "group_flag": 0.15,
+      "mel_flag": null,
+      "coverage": 0.8767,
+      "acc_on_answered": 0.9783,
+      "malignant_silent_as_benign": 6,
+      "mel_silent_miss": 4,
+      "n_referred": 136
+    }
+  }
+}
