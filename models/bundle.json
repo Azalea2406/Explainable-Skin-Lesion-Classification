@@ -1,0 +1,105 @@
+{
+  "classes": [
+    "akiec",
+    "bcc",
+    "bkl",
+    "df",
+    "mel",
+    "nv",
+    "vasc"
+  ],
+  "mean": [
+    0.763,
+    0.546,
+    0.57
+  ],
+  "std": [
+    0.141,
+    0.153,
+    0.17
+  ],
+  "img": 300,
+  "tta": true,
+  "default_profile": "t075",
+  "profiles": {
+    "t075": {
+      "threshold": 0.75,
+      "mel_flag": 0.15,
+      "coverage": 0.8957,
+      "acc_on_answered": 0.9747,
+      "mel_silent_miss": 4,
+      "mel_referred": 26,
+      "n_referred": 115
+    },
+    "t080": {
+      "threshold": 0.8,
+      "mel_flag": 0.15,
+      "coverage": 0.883,
+      "acc_on_answered": 0.9784,
+      "mel_silent_miss": 4,
+      "mel_referred": 28,
+      "n_referred": 129
+    }
+  },
+  "class_weights": {
+    "akiec": 12.0,
+    "bcc": 2.642,
+    "bkl": 2.107,
+    "df": 11.681,
+    "mel": 8.626,
+    "nv": 1.0,
+    "vasc": 12.0
+  },
+  "cw_factor": {
+    "akiec": 10.393,
+    "bcc": 0.994,
+    "bkl": 1.673,
+    "df": 0.982,
+    "mel": 7.229,
+    "nv": 0.897,
+    "vasc": 2.231
+  },
+  "meta": {
+    "age_median": 50.0,
+    "age_center": 50,
+    "age_scale": 20,
+    "sex_cols": [
+      "male",
+      "female",
+      "unknown"
+    ],
+    "loc_cols": [
+      "abdomen",
+      "acral",
+      "back",
+      "chest",
+      "ear",
+      "face",
+      "foot",
+      "genital",
+      "hand",
+      "lower extremity",
+      "neck",
+      "scalp",
+      "trunk",
+      "unknown",
+      "upper extremity"
+    ]
+  },
+  "models": [
+    {
+      "name": "efficientnet_b3",
+      "ckpt": "B2_efficientnet_b3.pt",
+      "meta": false,
+      "dual": false,
+      "temperature": 0.5999749898910522
+    },
+    {
+      "name": "efficientnet_b3",
+      "ckpt": "D2_efficientnet_b3.pt",
+      "meta": true,
+      "dual": false,
+      "temperature": 0.5837289094924927
+    }
+  ]
+}
