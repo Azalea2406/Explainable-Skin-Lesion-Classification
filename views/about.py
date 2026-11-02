@@ -11,5 +11,5 @@ with st.container(key="card_about2"):
     st.write("Analysis is restricted to verified clinicians as decision support. It does not provide a diagnosis.")
 with st.container(key="card_about3"):
     st.subheader("Limitations")
-    st.write("- Trained on **[describe your datasets]**; performance may differ on skin tones or image types that are under-represented.\n"
+    st.write("- Performance may differ on skin tones or image types that are under-represented.\n"
              "- Works best with focused, well-lit lesion images.\n- Seven classes only; other conditions are not covered.")

@@ -8,6 +8,15 @@ S, user = st.session_state, auth.current_user()
 S.setdefault("cases", {}); S.setdefault("active", None)
 MAP = open("assets/body_map.svg").read()
 
+
+@st.dialog("Where is the lesion?", width="large")
+def body_map():
+    st.markdown("<style>[data-testid='stDialog'] [data-testid='stImage']{justify-content:center}</style>", unsafe_allow_html=True)
+    st.caption("Upper extremity = arm, forearm, hand · Lower extremity = thigh, leg, foot. "
+               "Pick the closest region; use “Unknown” if unsure.")
+    zoom = st.slider("Zoom", 60, 160, 100, 10, format="%d%%")
+    st.image(MAP, width=int(620 * zoom / 100))
+
 # ---------- sidebar: history ----------
 with st.sidebar:
     if st.button("New analysis", type="primary", icon=":material/add:", width="stretch"):
@@ -65,10 +74,8 @@ with st.container(key="card_meta"):
     age = c1.number_input("Age", 0, 120, value=None, step=1, placeholder="e.g. 54")
     sex = c2.selectbox("Sex", ["Male", "Female", "Unknown"], index=None, placeholder="Select")
     site = c3.selectbox("Lesion site", list(sites.SITES), index=None, placeholder="Select a body region")
-    with c3.popover("Where is this on the body?", icon=":material/accessibility_new:"):
-        st.image(MAP, width="stretch")
-        st.caption("Upper extremity = arm, forearm, hand · Lower extremity = thigh, leg, foot. "
-                   "Pick the closest region; use “Unknown” if unsure.")
+    if c3.button("Where is this on the body?", icon=":material/accessibility_new:"):
+        body_map()
 ready = age is not None and sex and site
 prompt = st.chat_input("Attach a lesion image and send" if ready else "Fill in age, sex and site above first",
                        accept_file=True, file_type=["jpg", "jpeg", "png"], disabled=not ready)
