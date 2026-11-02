@@ -33,7 +33,7 @@ with st.sidebar:
 # ---------- chat ----------
 st.title("New scan")
 with st.chat_message("assistant"):
-    st.write("Hello, Doctor. Enter age, sex and lesion site, then attach a lesion photo and send. "
+    st.write("Hello, Doctor. Attach a lesion photo and send. "
              "I'll return a ranked list of possible classes and a downloadable report.")
 
 case = S.cases.get(S.active)
@@ -42,7 +42,7 @@ if case:
     with st.chat_message("user"):
         c1, c2 = st.columns([1, 3])
         c1.image(case["image"], width="stretch")
-        c2.markdown(f"**Age** {m['age']} · **Sex** {m['sex']}  \n**Site** {m['site']}")
+        c2.markdown(f"**Age** {m['age'] if m['age'] is not None else 'not provided'} · **Sex** {m['sex']}  \n**Site** {m['site']}")
     p = case["pred"]
     with st.chat_message("assistant"):
         top = sorted(p.probs.items(), key=lambda kv: -kv[1])[:3]
@@ -71,24 +71,23 @@ if case:
 # ---------- inputs ----------
 with st.container(key="card_meta"):
     c1, c2, c3 = st.columns([1, 1, 2])
-    age = c1.number_input("Age", 0, 120, value=None, step=1, placeholder="e.g. 54")
-    sex = c2.selectbox("Sex", ["Male", "Female", "Unknown"], index=None, placeholder="Select")
-    site = c3.selectbox("Lesion site", list(sites.SITES), index=None, placeholder="Select a body region")
+    age = c1.number_input("Age (optional)", 0, 120, value=None, step=1, placeholder="e.g. 54")
+    sex = c2.selectbox("Sex", ["Unknown", "Male", "Female"], index=0)
+    site = c3.selectbox("Lesion site", list(sites.SITES), index=list(sites.SITES).index("Unknown"))
     if c3.button("Where is this on the body?", icon=":material/accessibility_new:"):
         body_map()
-ready = age is not None and sex and site
-prompt = st.chat_input("Attach a lesion image and send" if ready else "Fill in age, sex and site above first",
-                       accept_file=True, file_type=["jpg", "jpeg", "png"], disabled=not ready)
+prompt = st.chat_input("Attach a lesion image and send", accept_file=True, file_type=["jpg", "jpeg", "png"])
 if prompt:
     if not prompt.files:
         st.info("Please attach a lesion image. Free-text questions aren't connected yet.")
     else:
         with st.spinner("Analysing…"):
             img = Image.open(io.BytesIO(prompt.files[0].getvalue())).convert("RGB")
-            pred = model_api.analyze(img, int(age), sex, sites.encode_site(site))
+            a = int(age) if age is not None else None
+            pred = model_api.analyze(img, a, sex, sites.encode_site(site))
             now, n = datetime.now(), len(S.cases) + 1
             c = dict(created=now, case_no=f"Case {n:04d}", report_id=f"DS-{now:%y%m%d}-{n:03d}",
-                     clinician=user["name"], image=img, pred=pred, meta=dict(age=int(age), sex=sex, site=site))
+                     clinician=user["name"], image=img, pred=pred, meta=dict(age=a, sex=sex, site=site))
             c["pdf"] = report.build_report(c)
             S.cases[f"c{n}"] = c; S.active = f"c{n}"
         st.rerun()

@@ -53,7 +53,7 @@ def build_report(case: dict) -> bytes:
 
     # 2. patient details
     _sec(pdf, "Patient details", 33)
-    for x, w, lab, val in [(12, 40, "CASE ID", case["case_no"]), (54, 40, "AGE", m["age"]),
+    for x, w, lab, val in [(12, 40, "CASE ID", case["case_no"]), (54, 40, "AGE", "Not provided" if m["age"] is None else m["age"]),
                            (96, 40, "SEX", m["sex"]), (138, 60, "LESION SITE", m["site"])]:
         _box(pdf, x, 40, w, 14, lab, val)
 

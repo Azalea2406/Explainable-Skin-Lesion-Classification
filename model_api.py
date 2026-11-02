@@ -49,8 +49,13 @@ def load_models():
     """TODO: load classifier / segmenter weights once (torch.load ... .eval())."""
     return None
 
-def analyze(image: Image.Image, age: int, sex: str, site_vec: list[float]) -> Prediction:
-    """image: RGB PIL. Returns a Prediction. DUMMY OUTPUT until the model is wired in."""
+AGE_IMPUTE = 50.0   # TODO: set to your training-set median age (used when age is not provided)
+
+def analyze(image: Image.Image, age: int | None, sex: str, site_vec: list[float]) -> Prediction:
+    """image: RGB PIL. age may be None, sex may be "Unknown", site may be "Unknown" (all optional).
+    Handle missing metadata the same way you did in training (e.g. impute age with AGE_IMPUTE,
+    or add a missing-indicator). Returns a Prediction. DUMMY OUTPUT until the model is wired in."""
+    age = AGE_IMPUTE if age is None else age
     _ = load_models()
     img = image.copy(); img.thumbnail((512, 512))
     seed = int(hashlib.sha256(img.tobytes()).hexdigest()[:8], 16)
