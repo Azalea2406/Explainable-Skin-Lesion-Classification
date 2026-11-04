@@ -8,8 +8,4 @@ with st.container(key="card_about1"):
              "When confidence is low it says “Not sure” and recommends dermatologist review.")
 with st.container(key="card_about2"):
     st.subheader("Who it is for")
-    st.write("Analysis is restricted to verified clinicians as decision support. It does not provide a diagnosis.")
-with st.container(key="card_about3"):
-    st.subheader("Limitations")
-    st.write("- Performance may differ on skin tones or image types that are under-represented.\n"
-             "- Works best with focused, well-lit lesion images.\n- Seven classes only; other conditions are not covered.")
+    st.write("Analysis is currently restricted to clinicians as decision support. General users can use the Learn section. It does not provide a diagnosis.")
