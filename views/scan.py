@@ -17,6 +17,14 @@ def body_map():
     zoom = st.slider("Zoom", 60, 160, 100, 10, format="%d%%")
     st.image(MAP, width=int(620 * zoom / 100))
 
+if not auth.can_scan(user):
+    st.title("New scan")
+    with st.container(key="card_gate"):
+        st.subheader("Analysis is limited to clinicians for now")
+        st.write("Your account can browse the Learn section. Image analysis for general users will be "
+                 "enabled once the model has been validated for this use.")
+    st.stop()
+
 # ---------- sidebar: history ----------
 with st.sidebar:
     if st.button("New analysis", type="primary", icon=":material/add:", width="stretch"):
