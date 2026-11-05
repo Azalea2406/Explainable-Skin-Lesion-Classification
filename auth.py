@@ -1,38 +1,36 @@
+"""Clinician-only auth (SQLite + PBKDF2). Prototype-grade: swap for st.login / OIDC in production.
+New accounts are 'pending' until approved:  python auth.py approve user@clinic.org
+Set DERMASCAN_AUTO_APPROVE=1 (default) to skip approval during development."""
 import hashlib, hmac, os, re, secrets, sqlite3, sys
 from pathlib import Path
 import streamlit as st
 
 DB = Path(os.getenv("DERMASCAN_DB", "data/users.db"))
 AUTO_APPROVE = os.getenv("DERMASCAN_AUTO_APPROVE", "1") == "1"
-ROLES = ["General user", "Dermatologist", "Physician / GP", "Resident", "Nurse practitioner"]
-# General users can browse Learn. Set True once the model is validated for non-clinician images.
-GENERAL_USERS_CAN_SCAN = False
-
-def can_scan(user) -> bool:
-    return bool(user) and (user["role"] != "General user" or GENERAL_USERS_CAN_SCAN)
+ROLES = ["Dermatologist", "Physician / GP", "Resident", "Nurse practitioner"]
 
 def _con():
     DB.parent.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(DB)
     con.row_factory = sqlite3.Row
     con.execute("""CREATE TABLE IF NOT EXISTS users(email TEXT PRIMARY KEY, name TEXT, role TEXT,
-        salt BLOB, pw BLOB, status TEXT, created TEXT DEFAULT CURRENT_TIMESTAMP)""")
+        reg_no TEXT, salt BLOB, pw BLOB, status TEXT, created TEXT DEFAULT CURRENT_TIMESTAMP)""")
     return con
 
 def _hash(pw: str, salt: bytes) -> bytes:
     return hashlib.pbkdf2_hmac("sha256", pw.encode(), salt, 200_000)
 
-def register(name, email, role, password):
+def register(name, email, role, reg_no, password):
     email = email.strip().lower()
-    if not name.strip(): return False, "Please enter your name."
+    if not (name.strip() and reg_no.strip()): return False, "Please fill in all fields."
     if not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", email): return False, "Enter a valid email address."
     if len(password) < 10: return False, "Password must be at least 10 characters."
     salt = secrets.token_bytes(16)
     status = "approved" if AUTO_APPROVE else "pending"
     try:
         with _con() as con:
-            con.execute("INSERT INTO users(email,name,role,salt,pw,status) VALUES(?,?,?,?,?,?)",
-                        (email, name.strip(), role, salt, _hash(password, salt), status))
+            con.execute("INSERT INTO users(email,name,role,reg_no,salt,pw,status) VALUES(?,?,?,?,?,?,?)",
+                        (email, name.strip(), role, reg_no.strip(), salt, _hash(password, salt), status))
     except sqlite3.IntegrityError:
         return False, "An account with this email already exists."
     return True, ("Account created. You can sign in now." if AUTO_APPROVE
