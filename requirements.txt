@@ -2,3 +2,8 @@ streamlit>=1.50
 fpdf2>=2.8
 pillow
 numpy
+opencv-python-headless
+torch
+timm
+segmentation-models-pytorch
+huggingface_hub
