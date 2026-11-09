@@ -81,10 +81,10 @@ def build_report(case: dict) -> bytes:
 
     # 5. scores
     _sec(pdf, "Scores", 177)
-    _box(pdf, 12, 184, 58, 17, "ATTENTION-LESION OVERLAP (IoU)", f"{p.iou:.2f}")
+    _box(pdf, 12, 184, 58, 17, "ATTENTION INSIDE LESION", f"{p.attn_in_lesion:.0%}")
     _box(pdf, 74, 184, 58, 17, "CLASSIFICATION CONFIDENCE", f"{p.confidence:.0%}")
     pdf.set_xy(136, 184); pdf.set_font("Helvetica", "", 7.5); pdf.set_text_color(*MUTED)
-    pdf.multi_cell(62, 3.6, align="L", text="Overlap shows how much of the model's attention falls on the segmented lesion. Higher means the model focused on the lesion. It is not a measure of segmentation accuracy.")
+    pdf.multi_cell(62, 3.6, align="L", text="Share of the model's attention (Grad-CAM) that falls inside the segmented lesion. Higher means it focused on the lesion, not the surrounding skin. It is not a measure of segmentation accuracy.")
 
     # 6. notes
     _sec(pdf, "About this finding" + ("" if p.is_unsure else f" - {info['name']}"), 207)

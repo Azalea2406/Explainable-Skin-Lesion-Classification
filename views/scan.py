@@ -58,7 +58,7 @@ if case:
             st.progress(pr, text=f"{content.CLASSES[code]['name']} — {pr:.0%}")
         k1, k2 = st.columns(2)
         k1.metric("Classification confidence", f"{p.confidence:.0%}")
-        k2.metric("Attention–lesion overlap (IoU)", f"{p.iou:.2f}", help="How much of the model's attention falls on the segmented lesion. Not segmentation accuracy.")
+        k2.metric("Attention inside lesion", f"{p.attn_in_lesion:.0%}", help="Share of the model's attention (Grad-CAM) that falls inside the segmented lesion. Not segmentation accuracy.")
         for col, (img, cap) in zip(st.columns(3), [(p.mask, "Segmentation mask"), (p.cam, "Grad-CAM heatmap"), (p.overlay, "Mask + Grad-CAM overlay")]):
             col.image(img, caption=cap, width="stretch")
         with st.expander("About this finding"):

@@ -70,6 +70,7 @@ class Prediction:
     used_metadata: bool = False
     n_networks: int = 0
     cam_source: str = ""
+    attn_in_lesion: float = 0.0   # share of Grad-CAM attention that falls inside the lesion mask (0-1)
 
 
 # ----------------------------------------------------------------------------- visual helpers
@@ -78,6 +79,11 @@ def attention_lesion_iou(cam01: np.ndarray, mask01: np.ndarray, thr: float = IOU
     a, b = cam01 >= thr, mask01 > 0.5
     union = np.logical_or(a, b).sum()
     return float(np.logical_and(a, b).sum() / union) if union else 0.0
+
+
+def attention_in_lesion(cam01: np.ndarray, mask01: np.ndarray) -> float:
+    """Share of total Grad-CAM attention that falls inside the lesion mask (0-1)."""
+    return float((cam01 * (mask01 > 0.5)).sum() / (cam01.sum() + 1e-8))
 
 
 def colorize(cam01: np.ndarray) -> Image.Image:
@@ -141,17 +147,36 @@ def _ensure_files():
 
 def _build_seg(sd: dict):
     import segmentation_models_pytorch as smp
+    for wrap in ("model_state_dict", "state_dict", "model_state", "model", "net", "weights"):
+        if isinstance(sd, dict) and isinstance(sd.get(wrap), dict):      # checkpoint saved as {"model_state_dict": ...}
+            sd = sd[wrap]
+            break
     sd = _clean_sd(sd)
-    sd = {(k[6:] if k.startswith("model.") else k): v for k, v in sd.items()}
+    for pre in ("module.", "model.", "net.", "unet."):                   # DataParallel / wrapper prefixes
+        if all(k.startswith(pre) for k in sd):
+            sd = {k[len(pre):]: v for k, v in sd.items()}
+    if "segmentation_head.0.weight" not in sd:
+        ks = list(sd)
+        raise ValueError("Segmentation checkpoint keys do not look like segmentation_models_pytorch.Unet "
+                         f"(expected 'segmentation_head.0.weight'). {len(ks)} keys; first: {ks[:6]}; last: {ks[-4:]}")
     n_out = sd["segmentation_head.0.weight"].shape[0]
     model = smp.Unet(SEG["encoder"], encoder_weights=None, in_channels=3, classes=n_out)
     model.load_state_dict(sd)          # strict: fails loudly if encoder / decoder settings differ from training
     return model, n_out
 
 
+def _check_not_lfs_pointer(path: Path):
+    """A Git-LFS pointer is a ~130-byte text file; platforms that clone without git-lfs leave these behind."""
+    if path.stat().st_size < 1024 and path.read_bytes().startswith(b"version https://git-lfs"):
+        raise RuntimeError(f"{path.name} is a Git-LFS pointer, not the real weights. "
+                           "Run `git lfs install && git lfs pull`, or make the platform fetch LFS files.")
+
+
 @st.cache_resource(show_spinner="Loading models…")
 def load_models():
     _ensure_files()
+    for f in MODEL_DIR.glob("*.pt"):
+        _check_not_lfs_pointer(f)
     cfg = json.loads((MODEL_DIR / "ensemble_cfg.json").read_text())
 
     nets = {}
@@ -312,7 +337,8 @@ def analyze(image: Image.Image, age: int | None, sex: str, site: str) -> Predict
     return Prediction(probs, None if unsure else top, unsure, probs[top],
                       Image.fromarray(mask * 255), colorize(cam),
                       make_overlay(Image.fromarray(view), mask.astype(float), cam),
-                      attention_lesion_iou(cam, mask), has_meta, len(members), f"{cam_key[0]} {cam_key[1]}")
+                      attention_lesion_iou(cam, mask), has_meta, len(members), f"{cam_key[0]} {cam_key[1]}",
+                      attention_in_lesion(cam, mask))
 
 
 CODE_IDX = {c: i for i, c in enumerate(CLASS_CODES)}
