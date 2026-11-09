@@ -84,7 +84,7 @@ if prompt:
         with st.spinner("Analysing…"):
             img = Image.open(io.BytesIO(prompt.files[0].getvalue())).convert("RGB")
             a = int(age) if age is not None else None
-            pred = model_api.analyze(img, a, sex, sites.encode_site(site))
+            pred = model_api.analyze(img, a, sex, site)
             now, n = datetime.now(), len(S.cases) + 1
             c = dict(created=now, case_no=f"Case {n:04d}", report_id=f"DS-{now:%y%m%d}-{n:03d}",
                      clinician=user["name"], image=img, pred=pred, meta=dict(age=a, sex=sex, site=site))
