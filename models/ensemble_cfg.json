@@ -1,0 +1,80 @@
+{
+  "classes": [
+    "akiec",
+    "bcc",
+    "bkl",
+    "df",
+    "mel",
+    "nv",
+    "vasc"
+  ],
+  "img": 300,
+  "mean": [
+    0.763,
+    0.546,
+    0.57
+  ],
+  "std": [
+    0.141,
+    0.153,
+    0.17
+  ],
+  "tta": "dihedral8",
+  "age_med": 50.0,
+  "age_scale": [
+    50,
+    20
+  ],
+  "sex_cols": [
+    "male",
+    "female",
+    "unknown"
+  ],
+  "localizations": [
+    "abdomen",
+    "acral",
+    "back",
+    "chest",
+    "ear",
+    "face",
+    "foot",
+    "genital",
+    "hand",
+    "lower extremity",
+    "neck",
+    "scalp",
+    "trunk",
+    "unknown",
+    "upper extremity"
+  ],
+  "meta_dim": 19,
+  "missing_defaults": {
+    "age": 50.0,
+    "sex": "unknown",
+    "localization": "unknown"
+  },
+  "members": {
+    "B2": {
+      "efficientnet_b3": "B2_efficientnet_b3.pt",
+      "densenet201": "B2_densenet201.pt",
+      "resnet50": "B2_resnet50.pt",
+      "convnext_tiny": "B2_convnext_tiny.pt"
+    },
+    "D2": {
+      "efficientnet_b3": "D2_efficientnet_b3.pt",
+      "densenet201": "D2_densenet201.pt",
+      "resnet50": "D2_resnet50.pt",
+      "convnext_tiny": "D2_convnext_tiny.pt"
+    }
+  },
+  "routing": {
+    "no_metadata": [
+      "B2"
+    ],
+    "any_metadata": [
+      "B2",
+      "D2"
+    ]
+  },
+  "averaging": "mean of softmax probabilities, equal weights"
+}

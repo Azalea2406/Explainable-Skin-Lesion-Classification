@@ -1,0 +1,19 @@
+{
+  "best": "unet",
+  "name": "U-Net",
+  "encoder": "resnet34",
+  "table": {
+    "U-Net": {
+      "dice": 0.9578,
+      "dice_median": 0.97638,
+      "iou": 0.92401,
+      "params_M": 24.43637
+    },
+    "U-Net++": {
+      "dice": 0.95138,
+      "dice_median": 0.97447,
+      "iou": 0.91408,
+      "params_M": 26.07861
+    }
+  }
+}
